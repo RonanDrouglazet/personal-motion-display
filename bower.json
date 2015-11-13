@@ -1,0 +1,26 @@
+{
+  "name": "personal-motion-display",
+  "description": "little personal interface for my rasp motion camera",
+  "main": "index.js",
+  "authors": [
+    "RonanDrouglazet"
+  ],
+  "license": "ISC",
+  "keywords": [
+    "rasp",
+    "motion",
+    "interface"
+  ],
+  "homepage": "https://github.com/RonanDrouglazet/personal-motion-display",
+  "moduleType": [],
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "semantic": "semantic-ui#~2.1.6"
+  }
+}
