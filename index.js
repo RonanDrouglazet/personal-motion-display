@@ -3,6 +3,7 @@ $(document).ready(function() {
     var title = []
     var video = {}
     var fps = 12
+    var running;
 
     var image = function(story, name) {
         var v = template.clone().attr('id', story);
@@ -107,9 +108,31 @@ $(document).ready(function() {
         }, 1000 / fps)
     }
 
+    var status = function(started) {
+        $(started ? '.green' : '.red').removeClass(started ? 'green' : 'red').addClass(started ? 'red' : 'green');
+        $('.labeled.button').find('.button').html(started ? 
+            '<i class="stop icon"></i> Stop' :
+            '<i class="play icon"></i> Start');
+        $('.labeled.button').find('.label').html(started ? 'started' : 'stopped');
+    }
+
     $.get('/api/list', function(data) {
         if (!data.error && data.files) {
             create(data.files)
         }
+    })
+
+    $.get('/api/status', function(started) {
+        running = started
+        status(started)
+    })
+
+    $('.labeled.button').find('.button').click(function() {
+        $(this).find('i').removeClass('play stop').addClass('spinner loading')
+        $.get('/api/' + (running ? 'stop' : 'start'), function(err) {
+            console.log(err)
+            running = !running
+            status(running)
+        })
     })
 })
