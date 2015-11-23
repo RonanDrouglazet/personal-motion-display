@@ -10,10 +10,10 @@ $(document).ready(function() {
         v.find('.header').html([
             story.slice(0, 4),
             story.slice(4, 6),
-            story.slice(6, 8)].join('/') + ' - ' + story.slice(8));
+            story.slice(6, 8)].join('/') + ' - ' + story.slice(10));
 
         var hour = name.match(/(?:\d+)-(?:\d{8})(\d{6})/)[1]
-        v.find('.date').html([hour.slice(0, 2), hour.slice(2, 4)].join('h ') + 'mn ' + hour.slice(4, 6) + 's')
+        v.find('.date').html([hour.slice(0, 2), hour.slice(2, 4)].join(':') + '.' + hour.slice(4, 6) + 's')
         v.find('.description').html((video[story].list.length * (1 / fps)).toFixed(1) + 's')
         v.find('a.play').click(function() { load(story) })
         $('.ui.cards').append(v);
@@ -21,16 +21,15 @@ $(document).ready(function() {
     }
 
     var create = function(filesArray) {
-        var story
         // filter story title
         filesArray.forEach(function(img) {
             if (img.match(/jpg$/)) {
-                var s = img.match(/(\d+)-(\d{8})/)
+                var s = img.match(/(\d+)-(\d{10})/)
                 var num = s[1]
                 var day = s[2]
+                var story = day + num
 
-                if (story !== day + num) {
-                    story = day + num
+                if (!video[story]) {
                     title.push([story, img])
                     video[story] = {list: [{name: img}]}
                 } else {
