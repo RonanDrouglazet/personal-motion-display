@@ -4,6 +4,7 @@ import picamera
 import picamera.array
 import numpy as np
 import cv2
+import datetime
 
 prior_image = None
 
@@ -53,7 +54,7 @@ def write_video(stream):
 
 with picamera.PiCamera() as camera:
     camera.resolution = (1280, 720)
-    stream = picamera.PiCameraCircularIO(camera, seconds=5)
+    stream = picamera.PiCameraCircularIO(camera, seconds=2)
     camera.start_recording(stream, format='h264')
     try:
         while True:
@@ -71,5 +72,8 @@ with picamera.PiCamera() as camera:
                     camera.wait_recording(5)
                 print('Motion stopped!')
                 camera.split_recording(stream)
+                subprocess.call(['avconv', '-i', '"concat:before.h264|after.h264" -c copy /motion/' + str(datetime.datetime.now()) + '.mp4'])
+                subprocess.call(['rm', './*.h264'])
+                print('Encode Finish!')
     finally:
         camera.stop_recording()
