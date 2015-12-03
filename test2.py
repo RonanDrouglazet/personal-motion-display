@@ -74,7 +74,7 @@ with picamera.PiCamera() as camera:
                     camera.wait_recording(5)
                 print('Motion stopped!')
                 camera.split_recording(stream)
-                subprocess.call(['avconv', '-i', '"concat:/home/pi/personal-motion-display/before.h264|/home/pi/personal-motion-display/after.h264"', '-c', 'copy', '/home/pi/personal-motion-display/motion/' + datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S") + '.mp4'])
+                subprocess.call(['avconv', '-i', 'before.h264', '-c', 'copy', '/home/pi/personal-motion-display/motion/' + datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S") + '.mp4'])
                 subprocess.call(['rm', '/home/pi/personal-motion-display/*.h264'])
                 print('Encode Finish!')
     finally:
