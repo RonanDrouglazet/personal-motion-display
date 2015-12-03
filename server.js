@@ -33,6 +33,7 @@ app.get("/api/stop", function(req, res) {
 
 app.use("/", express.static(__dirname + "/"));
 app.use("/motion", express.static(__dirname + "/../motion/"));
+app.use("/motion", express.static(__dirname + "/motion/"));
 
 app.listen(process.env.PORT || 8080);
 console.log("now listening on port ", (process.env.PORT || 8080));
