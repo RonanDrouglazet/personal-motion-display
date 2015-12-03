@@ -5,6 +5,7 @@ import picamera.array
 import numpy as np
 import cv2
 import datetime
+import subprocess
 
 prior_image = None
 
