@@ -56,6 +56,8 @@ def write_video(stream):
 
 with picamera.PiCamera() as camera:
     camera.resolution = (1280, 720)
+    camera.hflip = True
+    camera.vflip = True
     stream = picamera.PiCameraCircularIO(camera, seconds=2)
     camera.start_recording(stream, format='h264')
     try:
@@ -63,18 +65,21 @@ with picamera.PiCamera() as camera:
             camera.wait_recording(1)
             if detect_motion(camera):
                 print('Motion detected!')
+                time = datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
                 # As soon as we detect motion, split the recording to
                 # record the frames "after" motion
                 camera.split_recording('after.h264')
                 # Write the 10 seconds "before" motion to disk as well
                 write_video(stream)
+                # Write the motion poster
+                cv2.imwrite('./motion/' + time + '.jpg', prior_image)
                 # Wait until motion is no longer detected, then split
                 # recording back to the in-memory circular buffer
                 while detect_motion(camera):
                     camera.wait_recording(5)
                 print('Motion stopped!')
                 camera.split_recording(stream)
-                subprocess.call(['avconv', '-i', 'concat:before.h264|after.h264', '-c', 'copy', './motion/' + datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S") + '.mp4'])
+                subprocess.call(['avconv', '-i', 'concat:before.h264|after.h264', '-c', 'copy', './motion/' + time + '-HD.mp4'])
                 subprocess.call(['rm', 'before.h264', 'after.h264'])
                 print('Encode Finish!')
     finally:
