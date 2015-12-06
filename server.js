@@ -12,27 +12,24 @@ app.get("/api/list", function(req, res) {
 })
 
 app.get("/api/status", function(req, res) {
-    http.get('http://localhost:8080', function(data) {
-        res.send(true)
-    }).on('error', function(e) {
-        res.send(false)
+    cp.exec("status motionrecord", function(err, stdo, stde) {
+        res.send(stdo.indexOf('stop') !== -1)
     })
 })
 
 app.get("/api/start", function(req, res) {
-    cp.exec("motion", function(err) {
+    cp.exec("start motionrecord", function(err) {
         res.send(err);
     })
 })
 
 app.get("/api/stop", function(req, res) {
-    cp.exec("service motion stop", function(err) {
+    cp.exec("stop motionrecord", function(err) {
         res.send(err);
     })
 })
 
 app.use("/", express.static(__dirname + "/"));
-app.use("/motion", express.static(__dirname + "/../motion/"));
 app.use("/motion", express.static(__dirname + "/motion/"));
 
 app.listen(process.env.PORT || 8080);
