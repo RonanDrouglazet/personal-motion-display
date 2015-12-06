@@ -33,7 +33,7 @@ def detect_motion(camera):
             current_image = cv2.cvtColor(picture.array, cv2.COLOR_RGB2GRAY)
             # Compare current_image to prior_image to detect motion
             m = mse(current_image, prior_image)
-            result = m >= 100
+            result = m >= 20
             print('finish at ' + datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S"))
             print(m)
             # Once motion detection is done, make the prior image the current
