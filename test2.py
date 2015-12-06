@@ -22,6 +22,7 @@ def mse(imageA, imageB):
     return err
 
 def detect_motion(camera):
+    print('detect at ' + datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S"))
     global prior_image
     with picamera.array.PiRGBArray(camera) as picture:
         camera.capture(picture, format='rgb', use_video_port=True)
@@ -32,6 +33,8 @@ def detect_motion(camera):
             current_image = cv2.cvtColor(picture.array, cv2.COLOR_RGB2GRAY)
             # Compare current_image to prior_image to detect motion
             result = mse(current_image, prior_image) >= 100
+            print('finish at ' + datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S"))
+            print(result)
             # Once motion detection is done, make the prior image the current
             prior_image = current_image
             return result
