@@ -33,7 +33,7 @@ $(document).ready(function() {
         // filter story title
         filesArray.forEach(function(file) {
             if (file.match(/jpg$/)) {
-                var s = file.match(/(\d+)-(\d{10})/)
+                /*var s = file.match(/(\d+)-(\d{10})/)
                 var num = s[1]
                 var day = s[2]
                 var story = day + num
@@ -43,7 +43,7 @@ $(document).ready(function() {
                     video[story] = {list: [{name: file}]}
                 } else {
                     video[story].list.push({name: file})
-                }
+                }*/
             } else if (file.match(/mp4$/)) {
                 cvideo(file)
             }
