@@ -13,7 +13,7 @@ app.get("/api/list", function(req, res) {
 
 app.get("/api/status", function(req, res) {
     cp.exec("status motionrecord", function(err, stdo, stde) {
-        res.send(stdo.indexOf('stop') !== -1)
+        res.send(stdo.indexOf('stop') === -1)
     })
 })
 
