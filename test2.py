@@ -32,9 +32,10 @@ def detect_motion(camera):
         else:
             current_image = cv2.cvtColor(picture.array, cv2.COLOR_RGB2GRAY)
             # Compare current_image to prior_image to detect motion
-            result = mse(current_image, prior_image) >= 100
+            m = mse(current_image, prior_image)
+            result = m >= 100
             print('finish at ' + datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S"))
-            print(result)
+            print(m)
             # Once motion detection is done, make the prior image the current
             prior_image = current_image
             return result
@@ -65,7 +66,7 @@ with picamera.PiCamera() as camera:
     camera.start_recording(stream, format='h264')
     try:
         while True:
-            camera.wait_recording(1)
+            camera.wait_recording(0.5)
             if detect_motion(camera):
                 print('Motion detected!')
                 time = datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
