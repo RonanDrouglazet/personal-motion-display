@@ -23,7 +23,7 @@ $(document).ready(function() {
 
     var cvideo = function(name) {
         var v = template.clone().attr('id', name);
-        v.find('.image').append('<video src="motion/' + name + '" controls/>');
+        v.find('.image').append('<video width="280" src="motion/' + name + '" controls/>');
         v.find('.header').html(name);
         $('.ui.cards').append(v);
         v.find('.progress').hide();
