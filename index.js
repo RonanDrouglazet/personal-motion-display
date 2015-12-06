@@ -6,8 +6,8 @@ $(document).ready(function() {
     var running;
 
     var image = function(id, name) {
-        var v = template.clone().attr('id', id);
-        v.find('.image').append('<img src="motion/' + name + '" />');
+        var v = template.clone().attr('id', name);
+        v.find('.image').append('<video width="290" src="motion/' + name.replace('.jpg', '-HD.mp4') + '" poster="' + name + '" controls/>');
         v.find('.header').html(name.slice(0, 10).replace(/-/ig, '/'));
 
         v.find('.date').html(name.split('.').shift().slice(11).replace('-', ':').replace('-', '.'))
