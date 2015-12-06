@@ -66,7 +66,6 @@ with picamera.PiCamera() as camera:
     camera.start_recording(stream, format='h264')
     try:
         while True:
-            camera.wait_recording(0.5)
             if detect_motion(camera):
                 print('Motion detected!')
                 time = datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
