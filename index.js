@@ -26,7 +26,7 @@ $(document).ready(function() {
         // filter story title
         filesArray.forEach(function(file) {
             if (file.match(/jpg$/)) {
-                var id = file.split('.')[0].replace('-', '')
+                var id = file.split('.')[0].replace(/-/ig, '')
                 title.push([parseInt(id), file])
             } /*else if (file.match(/mp4$/)) {
                 cvideo(file)
