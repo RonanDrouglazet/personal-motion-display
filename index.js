@@ -21,7 +21,7 @@ $(document).ready(function() {
         v.find('.progress').hide();
     }
 
-    var video = function(name) {
+    var cvideo = function(name) {
         var v = template.clone().attr('id', story);
         v.find('.image').append('<video src="motion/' + name + '" controls/>');
         v.find('.header').html([name);
@@ -45,7 +45,7 @@ $(document).ready(function() {
                     video[story].list.push({name: file})
                 }
             } else if (file.match(/mp4$/)) {
-                video(file)
+                cvideo(file)
             }
         })
         // sort by date / story
