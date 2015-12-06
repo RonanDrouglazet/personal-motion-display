@@ -6,7 +6,7 @@ cp = require("child_process");
 var app = express();
 
 app.get("/api/list", function(req, res) {
-    fs.readdir(__dirname + "/../motion", function(err, data) {
+    fs.readdir(__dirname + "/motion", function(err, data) {
         res.send({files: data, error: err});
     });
 })

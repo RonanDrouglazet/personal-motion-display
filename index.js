@@ -21,21 +21,31 @@ $(document).ready(function() {
         v.find('.progress').hide();
     }
 
+    var video = function(name) {
+        var v = template.clone().attr('id', story);
+        v.find('.image').append('<video src="motion/' + name + '" controls/>');
+        v.find('.header').html([name);
+        $('.ui.cards').append(v);
+        v.find('.progress').hide();
+    }
+
     var create = function(filesArray) {
         // filter story title
-        filesArray.forEach(function(img) {
-            if (img.match(/jpg$/)) {
-                var s = img.match(/(\d+)-(\d{10})/)
+        filesArray.forEach(function(file) {
+            if (file.match(/jpg$/)) {
+                var s = file.match(/(\d+)-(\d{10})/)
                 var num = s[1]
                 var day = s[2]
                 var story = day + num
 
                 if (!video[story]) {
-                    title.push([story, img])
-                    video[story] = {list: [{name: img}]}
+                    title.push([story, file])
+                    video[story] = {list: [{name: file}]}
                 } else {
-                    video[story].list.push({name: img})
+                    video[story].list.push({name: file})
                 }
+            } else if (file.match(/mp4$/)) {
+                video(file)
             }
         })
         // sort by date / story
