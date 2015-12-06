@@ -34,6 +34,7 @@ $(document).ready(function() {
         })
         // sort by date / story
         title = title.sort(function(a, b) {
+            console.log(a[0])
             return parseInt(a[0]) < parseInt(b[0]) ? 1 : -1
         })
         // append
