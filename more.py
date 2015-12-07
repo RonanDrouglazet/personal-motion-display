@@ -62,7 +62,7 @@ class SDEncode(Thread):
         self.name = name
 
     def run(self):
-        subprocess.call(['avconv', '-i', '/home/pi/personal-motion-display/motion/' + name + '-HD.mp4', '-b', '500k', '/home/pi/personal-motion-display/motion/' + name + '-SD.mp4'])
+        subprocess.call(['avconv', '-i', '/home/pi/personal-motion-display/motion/' + self.name + '-HD.mp4', '-b', '500k', '/home/pi/personal-motion-display/motion/' + self.name + '-SD.mp4'])
 
 with picamera.PiCamera() as camera:
     camera.resolution = (1280, 720)
