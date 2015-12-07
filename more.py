@@ -7,6 +7,7 @@ import cv2
 import datetime
 import subprocess
 import string
+from threading import Thread
 
 prior_image = None
 
@@ -54,6 +55,15 @@ def write_video(stream):
     stream.seek(0)
     stream.truncate()
 
+class SDEncode(Thread):
+
+    def __init__(self, name):
+        Thread.__init__(self)
+        self.name = name
+
+    def run(self):
+        subprocess.call(['avconv', '-i', '/home/pi/personal-motion-display/motion/' + name + '-HD.mp4', '-b', '500k', '/home/pi/personal-motion-display/motion/' + name + '-SD.mp4'])
+
 with picamera.PiCamera() as camera:
     camera.resolution = (1280, 720)
     camera.hflip = True
@@ -81,7 +91,8 @@ with picamera.PiCamera() as camera:
                 print('Motion stopped!')
                 camera.split_recording(stream)
                 subprocess.call(['avconv', '-i', 'concat:before.h264|after.h264', '-c', 'copy', '/home/pi/personal-motion-display/motion/' + time + '-HD.mp4'])
-                subprocess.call(['avconv', '-i', '/home/pi/personal-motion-display/motion/' + time + '-HD.mp4', '-b', '500k', '-s' ,'320x180', '/home/pi/personal-motion-display/motion/' + time + '-SD.mp4'])
+                print('Start SD!')
+                SDEncode(time).start()
                 subprocess.call(['rm', 'before.h264', 'after.h264'])
                 print('Encode Finish!')
     finally:
