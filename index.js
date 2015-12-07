@@ -7,19 +7,36 @@ $(document).ready(function() {
 
     var image = function(id, name) {
         var v = template.clone().attr('id', name);
-        v.find('.image').append('<video width="290" src="motion/' + name.replace('.jpg', '-HD.mp4') + '" poster="motion/' + name + '" controls/>');
+        v.find('.image').append('<video width="290" src="motion/' + name.replace('.jpg', '-HD.mp4') + '" poster="motion/' + name + '" controls preload="none"/>');
         v.find('.header').html(name.slice(0, 10).replace(/-/ig, '/'));
 
         v.find('.date').html(name.split('.').shift().slice(11).replace('-', ':').replace('-', '.'))
         $('.ui.cards').append(v);
-    }
 
-    var cvideo = function(name) {
-        var v = template.clone().attr('id', name);
-        v.find('.image').append('<video width="280" src="motion/' + name + '" controls/>');
-        v.find('.header').html(name);
-        $('.ui.cards').append(v);
-        v.find('.progress').hide();
+        v.find('.checkbox')
+          .checkbox({
+            onChecked: function() {
+              v.find('video').attr('src', 'motion/' + name.replace('.jpg', '-HD.mp4'))
+            },
+            onUnchecked: function() {
+              v.find('video').attr('src', 'motion/' + name.replace('.jpg', '-SD.mp4'))
+            }
+          })
+        
+        v.find('.trash').click(function() {
+            $('.ui.basic.modal').modal({
+                onDeny    : function(){
+                  return true;
+                },
+                onApprove : function() {
+                  $.get('/api/remove/' + name, function(err) {
+                    if (!err) {
+                        v.remove();
+                    }
+                  })
+                }
+              }).modal('show')
+        })
     }
 
     var create = function(filesArray) {
@@ -28,13 +45,11 @@ $(document).ready(function() {
             if (file.match(/jpg$/)) {
                 var id = file.split('.')[0].replace(/-/ig, '')
                 title.push([parseInt(id), file])
-            } /*else if (file.match(/mp4$/)) {
-                cvideo(file)
-            }*/
+            }
         })
+
         // sort by date / story
         title = title.sort(function(a, b) {
-            console.log(a[0])
             return parseInt(a[0]) < parseInt(b[0]) ? 1 : -1
         })
         // append

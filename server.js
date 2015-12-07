@@ -29,6 +29,12 @@ app.get("/api/stop", function(req, res) {
     })
 })
 
+app.get("/api/remove/:name", function(req, res) {
+    cp.exec("rm " + __dirname + "/motion/" + req.params.name.replace('.jpg', '*'), function(err) {
+        res.send(err);
+    })
+})
+
 app.use("/", express.static(__dirname + "/"));
 app.use("/motion", express.static(__dirname + "/motion/"));
 
