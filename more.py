@@ -7,9 +7,10 @@ import cv2
 import datetime
 import subprocess
 import string
-from threading import Thread
+from threading import Thread, RLock
 
 prior_image = None
+lock = RLock()
 
 def mse(imageA, imageB):
     # the 'Mean Squared Error' between the two images is the
@@ -62,7 +63,8 @@ class SDEncode(Thread):
         self.name = name
 
     def run(self):
-        subprocess.call(['avconv', '-i', '/home/pi/personal-motion-display/motion/' + self.name + '-HD.mp4', '-b', '500k', '/home/pi/personal-motion-display/motion/' + self.name + '-SD.mp4'])
+        with lock:
+            subprocess.call(['avconv', '-i', '/home/pi/personal-motion-display/motion/' + self.name + '-HD.mp4', '-b', '500k', '/home/pi/personal-motion-display/motion/' + self.name + '-SD.mp4'])
 
 with picamera.PiCamera() as camera:
     camera.resolution = (1280, 720)
@@ -91,9 +93,9 @@ with picamera.PiCamera() as camera:
                 print('Motion stopped!')
                 camera.split_recording(stream)
                 subprocess.call(['avconv', '-i', 'concat:before.h264|after.h264', '-c', 'copy', '/home/pi/personal-motion-display/motion/' + time + '-HD.mp4'])
+                subprocess.call(['rm', 'before.h264', 'after.h264'])
                 print('Start SD!')
                 SDEncode(time).start()
-                subprocess.call(['rm', 'before.h264', 'after.h264'])
                 print('Encode Finish!')
     finally:
         camera.stop_recording()
