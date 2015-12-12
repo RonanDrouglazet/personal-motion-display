@@ -7,6 +7,7 @@ import cv2
 import datetime
 import subprocess
 import string
+import threading
 from threading import Thread, RLock
 
 prior_image = None
