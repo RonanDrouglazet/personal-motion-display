@@ -130,13 +130,14 @@ class StoryMaker(Thread):
 
     def encode_hd(self, type):
         global motion_path, story_name
+        main_video = motion_path + story_name + self.hd_ext
         if type is 'resume':
-            self.videos.insert(0, story_name + self.hd_ext)
+            self.videos.insert(0, main_video)
         source = '|'.join(self.videos)
         print source
-        subprocess.call(['avconv', '-i', 'concat:' + source, '-c', 'copy', motion_path + story_name + self.hd_ext])
+        subprocess.call(['avconv', '-i', 'concat:' + source, '-c', 'copy', main_video])
         for video in self.videos:
-            if video is not story_name + self.hd_ext:
+            if video is not main_video:
                 subprocess.call(['rm', video])
 
 
