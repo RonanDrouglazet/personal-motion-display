@@ -147,10 +147,10 @@ class StoryMaker(Thread):
             subprocess.call(['rm', video])
 
         if type is 'resume':
-            subprocess.call(['avconv', '-i', 'concat:' + main_video + '|' + temp_video, '-c', 'copy', 'temp2.mp4'])
+            subprocess.call(['avconv', '-i', 'concat:' + main_video + '|' + temp_video, 'temp2.mp4'])
             print('mv temp2.mp4 to ' + main_video)
             subprocess.call(['mv', '-f', 'temp2.mp4', main_video])
-            subprocess.call(['rm', '*.mp4'])
+            subprocess.call(['rm', './*.mp4'])
 
 
 class SDEncode(Thread):
