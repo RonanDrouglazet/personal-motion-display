@@ -180,8 +180,11 @@ with picamera.PiCamera() as camera:
                 #SDEncode(time).start()
                 #print('Encode Finish!')
 
-        motion = MotionRecord(camera, stream).start()
+        motion = MotionRecord(camera, stream)
+        motion.start()
+
         story = StoryMaker()
+        
         while not motion.event_kill.is_set():
             motion.event_motion.wait()
             #todo create/reset a timer for the "story" (e.g 10mn)
