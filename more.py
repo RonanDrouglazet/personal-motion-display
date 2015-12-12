@@ -35,7 +35,7 @@ class MotionRecord(Thread):
                 now = math.ceil(time.time())
                 # As soon as we detect motion, split the recording to
                 # record the frames "after" motion
-                camera.split_recording(now + '.h264')
+                camera.split_recording(str(now) + '.h264')
                 # Write the 2 seconds "before" motion to disk as well
                 self.write_video(self.stream, now - 2)
                 # Wait until motion is no longer detected, 
@@ -45,7 +45,7 @@ class MotionRecord(Thread):
                 # then split recording back to the in-memory circular buffer
                 camera.split_recording(self.stream)
                 # append video to encode in the queue
-                self.queue = [now + '.h264', (now - 2) + '.h264']
+                self.queue = [str(now) + '.h264', str((now - 2)) + '.h264']
                 # Warn everyone
                 self.event_motion.set()
 
@@ -80,7 +80,7 @@ class MotionRecord(Thread):
         # Write the entire content of the circular buffer to disk. No need to
         # lock the stream here as we're definitely not writing to it
         # simultaneously
-        with io.open(name + '.h264', 'wb') as output:
+        with io.open(str(name) + '.h264', 'wb') as output:
             for frame in stream.frames:
                 if frame.frame_type == picamera.PiVideoFrameType.sps_header:
                     stream.seek(frame.position)
