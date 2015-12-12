@@ -119,7 +119,8 @@ class StoryMaker(Thread):
                 self.encode_hd('create')
 
     def init_story(self, now):
-        global story_time = now
+        global story_time
+        story_time = now
         self.story_name = datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
 
     def write_image(self):
