@@ -28,16 +28,16 @@ class MotionRecord(Thread):
 
     def run(self):
         while not self.event_kill.is_set():
-            if detect_motion(camera):
+            if self.detect_motion(camera):
                 print('Motion detected!')
                 now = math.ceil(time.time())
                 # As soon as we detect motion, split the recording to
                 # record the frames "after" motion
                 camera.split_recording(now + '.h264')
                 # Write the 2 seconds "before" motion to disk as well
-                write_video(self.stream, now - 2)
+                self.write_video(self.stream, now - 2)
                 # Wait until motion is no longer detected, 
-                while detect_motion(self.camera):
+                while self.detect_motion(self.camera):
                     camera.wait_recording(5)
                 print('Motion stopped!')
                 # then split recording back to the in-memory circular buffer
@@ -48,7 +48,7 @@ class MotionRecord(Thread):
                 self.event_motion.set()
 
 
-    def detect_motion(camera):
+    def detect_motion(self, camera):
         global prior_image
         with picamera.array.PiRGBArray(camera) as picture:
             camera.capture(picture, format='rgb', use_video_port=True)
@@ -58,12 +58,12 @@ class MotionRecord(Thread):
             else:
                 current_image = cv2.cvtColor(picture.array, cv2.COLOR_RGB2GRAY)
                 # Compare current_image to prior_image to detect motion
-                result = mse(current_image, prior_image) >= 50
+                result = self.mse(current_image, prior_image) >= 50
                 # Once motion detection is done, make the prior image the current
                 prior_image = current_image
                 return result
 
-    def mse(imageA, imageB):
+    def mse(self, imageA, imageB):
         # the 'Mean Squared Error' between the two images is the
         # sum of the squared difference between the two images;
         # NOTE: the two images must have the same dimension
@@ -74,7 +74,7 @@ class MotionRecord(Thread):
         # the two images are
         return err
 
-    def write_video(stream, name):
+    def write_video(self, stream, name):
         # Write the entire content of the circular buffer to disk. No need to
         # lock the stream here as we're definitely not writing to it
         # simultaneously
