@@ -27,7 +27,7 @@ class MotionRecord(Thread):
         self.queue = []
 
     def run(self):
-        while not self.kill_event.is_set():
+        while not self.event_kill.is_set():
             if detect_motion(camera):
                 print('Motion detected!')
                 now = math.ceil(time.time())
