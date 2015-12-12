@@ -47,7 +47,7 @@ class MotionRecord(Thread):
                 # then split recording back to the in-memory circular buffer
                 camera.split_recording(self.stream)
                 # append video to encode in the queue
-                self.queue = [str(now) + '.h264', str((now - 2)) + '.h264']
+                self.queue = [str((now - 2)) + '.h264', str(now) + '.h264']
                 # Warn everyone
                 self.event_motion.set()
 
