@@ -140,7 +140,7 @@ class StoryMaker(Thread):
         source = '|'.join(self.videos)
         print source
         
-        subprocess.call(['avconv', '-i', 'concat:' + source, '-c', 'copy', temp_video || main_video])
+        subprocess.call(['avconv', '-i', 'concat:' + source, '-c', 'copy', temp_video if temp_video else main_video])
         
         for video in self.videos:
             print('rm ' + video)
