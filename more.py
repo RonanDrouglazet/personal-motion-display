@@ -14,6 +14,7 @@ from threading import Thread, RLock
 
 prior_image = None
 story_time = 0
+story_name = ''
 motion_path = '/home/pi/personal-motion-display/motion/'
 
 lockSDEncode = RLock()
@@ -119,23 +120,23 @@ class StoryMaker(Thread):
                 self.encode_hd('create')
 
     def init_story(self, now):
-        global story_time
+        global story_time, story_name
         story_time = now
-        self.story_name = datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
+        story_name = datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
 
     def write_image(self):
-        global prior_image, motion_path
-        cv2.imwrite(motion_path + self.story_name + '.jpg', prior_image)
+        global prior_image, motion_path, story_name
+        cv2.imwrite(motion_path + story_name + '.jpg', prior_image)
 
     def encode_hd(self, type):
-        global motion_path
+        global motion_path, story_name
         if type is 'resume':
-            self.videos.insert(0, self.story_name + self.hd_ext)
+            self.videos.insert(0, story_name + self.hd_ext)
         source = '|'.join(self.videos)
         print source
-        subprocess.call(['avconv', '-i', 'concat:' + source, '-c', 'copy', motion_path + self.story_name + self.hd_ext])
+        subprocess.call(['avconv', '-i', 'concat:' + source, '-c', 'copy', motion_path + story_name + self.hd_ext])
         for video in self.videos:
-            if video is not self.story_name + self.hd_ext:
+            if video is not story_name + self.hd_ext:
                 subprocess.call(['rm', video])
 
 
