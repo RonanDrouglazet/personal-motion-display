@@ -13,6 +13,7 @@ import threading
 from threading import Thread, RLock
 
 prior_image = None
+story_time = 0
 motion_path = '/home/pi/personal-motion-display/motion/'
 
 lockSDEncode = RLock()
@@ -96,42 +97,43 @@ class MotionRecord(Thread):
 
 class StoryMaker(Thread):
 
-    def __init__(self):
+    def __init__(self, videos):
         Thread.__init__(self)
-        self.time = math.ceil(time.time())
+        self.videos = videos
         self.story_duration = 600 #s
         self.hd_ext = '-HD.mp4'
 
-    def run(self, videos):
+    def run(self):
+        global story_time
         with storyLock:
             now = math.ceil(time.time())
             # if under story duration, it's a story resume
-            if (now - self.time) < self.story_duration :
+            if (now - story_time) < self.story_duration :
                 print('story resume')
-                self.encode_hd('resume', videos)
+                self.encode_hd('resume')
             # else we have a new story
             else:
                 print('story create')
                 self.init_story(now)
                 self.write_image()
-                self.encode_hd('create', videos)
+                self.encode_hd('create')
 
     def init_story(self, now):
-        self.time = now
+        global story_time = now
         self.story_name = datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
 
     def write_image(self):
         global prior_image, motion_path
         cv2.imwrite(motion_path + self.story_name + '.jpg', prior_image)
 
-    def encode_hd(self, type, videos):
+    def encode_hd(self, type):
         global motion_path
         if type is 'resume':
-            videos.insert(0, self.story_name + self.hd_ext)
-        source = '|'.join(videos)
+            self.videos.insert(0, self.story_name + self.hd_ext)
+        source = '|'.join(self.videos)
         print source
         subprocess.call(['avconv', '-i', 'concat:' + source, '-c', 'copy', motion_path + self.story_name + self.hd_ext])
-        for video in videos:
+        for video in self.videos:
             if video is not self.story_name + self.hd_ext:
                 subprocess.call(['rm', video])
 
@@ -182,14 +184,12 @@ with picamera.PiCamera() as camera:
 
         motion = MotionRecord(camera, stream)
         motion.start()
-
-        story = StoryMaker()
         
         while not motion.event_kill.is_set():
             motion.event_motion.wait()
             #todo create/reset a timer for the "story" (e.g 10mn)
             # if the timer is null, new story so write image, else it's a story resume
-            story.start(motion.queue)
+            StoryMaker(motion.queue).start()
             motion.event_motion.clear()
 
     finally:
