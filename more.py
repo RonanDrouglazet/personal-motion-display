@@ -26,9 +26,26 @@ class MotionRecord(Thread):
         Thread.__init__(self)
         self.event_kill = threading.Event()
         self.event_motion = threading.Event()
+        self.event_clean = threading.Event()
         self.camera = camera
         self.stream = stream
         self.queue = []
+
+        self.clean()
+
+    def clean(self):
+        while not self.event_kill.is_set():
+            self.event_clean.wait()
+            print 'clean'
+            print self.queue
+            keep = self.queue[-2::2]
+            print keep
+            print self.queue
+            for video in self.queue:
+                print('rm ' + video)
+                subprocess.call(['rm', video])
+            self.queue = keep
+            self.event_clean.clear()
 
     def run(self):
         while not self.event_kill.is_set():
@@ -47,7 +64,7 @@ class MotionRecord(Thread):
                 # then split recording back to the in-memory circular buffer
                 camera.split_recording(self.stream)
                 # append video to encode in the queue
-                self.queue = [str((now - 2)) + '.h264', str(now) + '.h264']
+                self.queue.append(str((now - 2)) + '.h264', str(now) + '.h264')
                 # Warn everyone
                 self.event_motion.set()
 
@@ -98,11 +115,12 @@ class MotionRecord(Thread):
 
 class StoryMaker(Thread):
 
-    def __init__(self, videos):
+    def __init__(self, videos, clean_motion_queue):
         Thread.__init__(self)
         self.videos = videos
         self.story_duration = 600 #s
         self.hd_ext = '-HD.mp4'
+        self.clean_motion_queue = clean_motion_queue
 
     def run(self):
         global story_time
@@ -117,6 +135,9 @@ class StoryMaker(Thread):
                 print('story create')
                 self.init_story(now)
                 self.write_image()
+                # if it's not the first story, clean previous queue
+                if len(self.videos) > 2:
+                    self.clean_motion_queue.set()
                 self.encode_hd('create')
 
     def init_story(self, now):
@@ -128,29 +149,14 @@ class StoryMaker(Thread):
         global prior_image, motion_path, story_name
         cv2.imwrite(motion_path + story_name + '.jpg', prior_image)
 
-    def encode_hd(self, type):
+    def encode_hd(self):
         global motion_path, story_name
         main_video = motion_path + story_name + self.hd_ext
-        temp_video = None
-        
-        if type is 'resume':
-            #self.videos.insert(0, main_video)
-            temp_video = 'temp.mp4'
         
         source = '|'.join(self.videos)
         print source
         
-        subprocess.call(['avconv', '-i', 'concat:' + source, '-c', 'copy', temp_video if temp_video else main_video])
-        
-        for video in self.videos:
-            print('rm ' + video)
-            subprocess.call(['rm', video])
-
-        if type is 'resume':
-            subprocess.call(['avconv', '-i', 'concat:' + main_video + '|' + temp_video, 'temp2.mp4'])
-            print('mv temp2.mp4 to ' + main_video)
-            subprocess.call(['mv', '-f', 'temp2.mp4', main_video])
-            subprocess.call(['rm', './*.mp4'])
+        subprocess.call(['avconv', '-i', 'concat:' + source, '-c', 'copy', '-y', main_video])
 
 
 class SDEncode(Thread):
@@ -203,7 +209,7 @@ with picamera.PiCamera() as camera:
             motion.event_motion.wait()
             #todo create/reset a timer for the "story" (e.g 10mn)
             # if the timer is null, new story so write image, else it's a story resume
-            StoryMaker(motion.queue).start()
+            StoryMaker(motion.queue, motion.event_clean).start()
             motion.event_motion.clear()
 
     finally:
