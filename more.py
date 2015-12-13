@@ -26,26 +26,20 @@ class MotionRecord(Thread):
         Thread.__init__(self)
         self.event_kill = threading.Event()
         self.event_motion = threading.Event()
-        self.event_clean = threading.Event()
         self.camera = camera
         self.stream = stream
         self.queue = []
 
-        #self.clean()
-
     def clean(self):
-        while not self.event_kill.is_set():
-            self.event_clean.wait()
-            print 'clean'
-            print self.queue
-            keep = self.queue[-2::2]
-            print keep
-            print self.queue
-            for video in self.queue:
-                print('rm ' + video)
-                subprocess.call(['rm', video])
-            self.queue = keep
-            self.event_clean.clear()
+        print 'clean'
+        print self.queue
+        keep = self.queue[-2::2]
+        print keep
+        print self.queue
+        for video in self.queue:
+            print('rm ' + video)
+            subprocess.call(['rm', video])
+        self.queue = keep
 
     def run(self):
         while not self.event_kill.is_set():
@@ -137,7 +131,7 @@ class StoryMaker(Thread):
                 self.write_image()
                 # if it's not the first story, clean previous queue
                 if len(self.videos) > 2:
-                    self.clean_motion_queue.set()
+                    self.clean_motion_queue()
                 self.encode_hd('create')
 
     def init_story(self, now):
@@ -209,7 +203,7 @@ with picamera.PiCamera() as camera:
             motion.event_motion.wait()
             #todo create/reset a timer for the "story" (e.g 10mn)
             # if the timer is null, new story so write image, else it's a story resume
-            StoryMaker(motion.queue, motion.event_clean).start()
+            StoryMaker(motion.queue, motion.clean).start()
             motion.event_motion.clear()
 
     finally:
