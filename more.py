@@ -32,10 +32,7 @@ class MotionRecord(Thread):
 
     def clean(self):
         print 'clean'
-        print self.queue
         keep = self.queue[-2::]
-        print keep
-        print self.queue
         for video in self.queue:
             if video not in keep:
                 print('rm ' + video)
@@ -153,7 +150,7 @@ class StoryMaker(Thread):
         source = '|'.join(self.videos)
         print source
         
-        subprocess.call(['avconv', '-i', 'concat:' + source, '-c', 'copy', '-y', main_video])
+        subprocess.call(['avconv', '-i', 'concat:' + source, '-c', 'copy','-loglevel', 'quiet', '-y', main_video])
 
 
 class SDEncode(Thread):
