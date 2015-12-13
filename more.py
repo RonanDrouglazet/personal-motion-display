@@ -1,4 +1,4 @@
-import io, sys, random, picamera
+import io, sys, random, picamera, json
 import picamera.array
 import numpy as np
 import cv2, math, time, datetime, subprocess
@@ -134,12 +134,12 @@ class StoryMaker(Thread):
                 video_sd_queue.append(motion_path + story_name + self.hd_ext)
                 # temp pushbullet
                 print('pushbullet ' + sys.argv[1])
-                pushbullet.request('POST', '/v2/pushes', {
+                pushbullet.request('POST', '/v2/pushes', json.dumps({
                     'type': 'link',
                     'title': 'Motion detected !',
                     'body': story_name,
                     'url': sys.argv[2]
-                }, {'Access-Token': sys.argv[1]})
+                }), {'Access-Token': sys.argv[1]})
                 response = pushbullet.getresponse()
                 print response.status, response.reason
                 data = response.read()
