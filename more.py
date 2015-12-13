@@ -172,7 +172,7 @@ class SDEncode(Thread):
                 print videos
             else:
                 print ('wait encode SD')
-                videos = subprocess.call(['ls', '-l', '.'])
+                videos = subprocess.call(['ls', '-l', 'motion/*.mp4'])
                 print videos
                 time.sleep(story_duration * 0.1)
         
