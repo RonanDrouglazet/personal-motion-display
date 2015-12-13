@@ -162,7 +162,7 @@ class SDEncode(Thread):
             now = math.ceil(time.time())
             if story_time and (story_time + story_duration) < now:
                 print ('encode SD')
-            else
+            else:
                 camera.wait_recording(story_duration * 0.1)
         
         #with lockSDEncode:
