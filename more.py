@@ -15,6 +15,7 @@ from threading import Thread, RLock
 prior_image = None
 story_time = 0
 story_name = ''
+story_duration = 60 #s
 motion_path = '/home/pi/personal-motion-display/motion/'
 
 lockSDEncode = RLock()
@@ -64,7 +65,6 @@ class MotionRecord(Thread):
 
 
     def detect_motion(self, camera):
-        global prior_image
         with picamera.array.PiRGBArray(camera) as picture:
             camera.capture(picture, format='rgb', use_video_port=True)
             if prior_image is None:
@@ -112,16 +112,14 @@ class StoryMaker(Thread):
     def __init__(self, videos, clean_motion_queue):
         Thread.__init__(self)
         self.videos = videos
-        self.story_duration = 60 #s
         self.hd_ext = '-HD.mp4'
         self.clean_motion_queue = clean_motion_queue
 
     def run(self):
-        global story_time
         with storyLock:
             now = math.ceil(time.time())
             # if under story duration, it's a story resume
-            if (now - story_time) < self.story_duration :
+            if (now - story_time) < story_duration :
                 print('story resume')
                 self.encode_hd()
             # else we have a new story
@@ -135,75 +133,63 @@ class StoryMaker(Thread):
                 self.encode_hd()
 
     def init_story(self, now):
-        global story_time, story_name
         story_time = now
         story_name = datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
+        print story_name
 
     def write_image(self):
-        global prior_image, motion_path, story_name
         cv2.imwrite(motion_path + story_name + '.jpg', prior_image)
 
     def encode_hd(self):
-        global motion_path, story_name
         main_video = motion_path + story_name + self.hd_ext
         
         source = '|'.join(self.videos)
         print source
         
         subprocess.call(['avconv', '-i', 'concat:' + source, '-c', 'copy','-loglevel', 'error', '-y', main_video])
+        print('encode finish')
 
 
 class SDEncode(Thread):
 
-    def __init__(self, name):
+    def __init__(self, camera):
         Thread.__init__(self)
-        self.name = name
+        self.camera = camera
+        self.event_kill = threading.Event()
 
     def run(self):
-        global motion_path
-        with lockSDEncode:
-            subprocess.call(['avconv', '-i', motion_path + self.name + '-HD.mp4', '-b', '500k', motion_path + self.name + '-SD.mp4'])
+        while not self.event_kill.is_set():
+            now = math.ceil(time.time())
+            if story_time and (story_time + story_duration) < now:
+                print ('encode SD')
+            else
+                camera.wait_recording(story_duration * 0.1)
+        
+        #with lockSDEncode:
+        #    subprocess.call(['avconv', '-i', motion_path + self.name + '-HD.mp4', '-b', '500k', motion_path + self.name + '-SD.mp4'])
 
 with picamera.PiCamera() as camera:
+    # init camera
     camera.resolution = (1280, 720)
     camera.hflip = True
     camera.vflip = True
+    # circular 2 second stream 
     stream = picamera.PiCameraCircularIO(camera, seconds=2)
     camera.start_recording(stream, format='h264')
+    # wait a little, if not, falsy motion are detected
     camera.wait_recording(5)
     try:
-        #print('start motionrecord')
-        #while True:
-            #if detect_motion(camera):
-                #print('Motion detected!')
-                #time = datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
-                # As soon as we detect motion, split the recording to
-                # record the frames "after" motion
-                #camera.split_recording('after.h264')
-                # Write the 10 seconds "before" motion to disk as well
-                #write_video(stream)
-                # Write the motion poster
-                #cv2.imwrite(motion_path + time + '.jpg', prior_image)
-                # Wait until motion is no longer detected, then split
-                # recording back to the in-memory circular buffer
-                #while detect_motion(camera):
-                #    camera.wait_recording(5)
-                #print('Motion stopped!')
-                #camera.split_recording(stream)
-                #subprocess.call(['avconv', '-i', 'concat:before.h264|after.h264', '-c', 'copy', motion_path + time + '-HD.mp4'])
-                #subprocess.call(['rm', 'before.h264', 'after.h264'])
-                #print('Start SD!')
-                #SDEncode(time).start()
-                #print('Encode Finish!')
-
+        # init motion detector thread
         motion = MotionRecord(camera, stream)
         motion.start()
-        
+        sd_encoder = SDEncode(camera)
+        sd_encoder.start()
         while not motion.event_kill.is_set():
+            # wait for a motion
             motion.event_motion.wait()
-            #todo create/reset a timer for the "story" (e.g 10mn)
-            # if the timer is null, new story so write image, else it's a story resume
+            # we have a motion, resume or creat a story
             StoryMaker(motion.queue, motion.clean).start()
+            # story work is finish, reset motion event and listen again 
             motion.event_motion.clear()
 
     finally:
