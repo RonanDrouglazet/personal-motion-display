@@ -31,7 +31,7 @@ class MotionRecord(Thread):
         self.stream = stream
         self.queue = []
 
-        self.clean()
+        #self.clean()
 
     def clean(self):
         while not self.event_kill.is_set():
