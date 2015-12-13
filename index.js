@@ -37,6 +37,21 @@ $(document).ready(function() {
                 }
               }).modal('show')
         })
+
+        v.find('.save').click(function() {
+            $('.ui.basic.modal').modal({
+                onDeny    : function(){
+                  return true;
+                },
+                onApprove : function() {
+                  $.get('/api/keep/' + name.replace('.jpg', ''), function(err) {
+                    if (!err) {
+                        v.find('.save').remove();
+                    }
+                  })
+                }
+              }).modal('show')
+        })
     }
 
     var create = function(filesArray) {
