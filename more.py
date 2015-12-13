@@ -47,6 +47,8 @@ class MotionRecord(Thread):
                     camera.split_recording(str(now) + '.h264')
                     # Write the 2 seconds "before" motion to disk as well
                     self.write_video(self.stream, now - 2)
+                    # call pushbullet for notif
+                    Push(str(now)).start()
                     # Wait until motion is no longer detected, 
                     while self.detect_motion(self.camera):
                         camera.wait_recording(5)
@@ -147,8 +149,6 @@ class StoryMaker(Thread):
                 print('story create')
                 # init time and name 
                 self.init_story(now)
-                # call pushbullet for notif
-                Push(story_name).start()
                 # write cover image
                 self.write_image()
                 # if it's not the first story, clean previous queue
