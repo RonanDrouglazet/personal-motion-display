@@ -169,7 +169,8 @@ class SDEncode(Thread):
             if story_time and (story_time + story_duration) < now:
                 print ('encode SD')
             else:
-                camera.wait_recording(1)
+                print ('wait encode SD')
+                self.camera.wait_recording(1)
         
         #with lockSDEncode:
         #    subprocess.call(['avconv', '-i', motion_path + self.name + '-HD.mp4', '-b', '500k', motion_path + self.name + '-SD.mp4'])
