@@ -65,6 +65,7 @@ class MotionRecord(Thread):
 
 
     def detect_motion(self, camera):
+        global prior_image
         with picamera.array.PiRGBArray(camera) as picture:
             camera.capture(picture, format='rgb', use_video_port=True)
             if prior_image is None:
@@ -116,6 +117,7 @@ class StoryMaker(Thread):
         self.clean_motion_queue = clean_motion_queue
 
     def run(self):
+        global story_time, story_duration
         with storyLock:
             now = math.ceil(time.time())
             # if under story duration, it's a story resume
@@ -133,14 +135,17 @@ class StoryMaker(Thread):
                 self.encode_hd()
 
     def init_story(self, now):
+        global story_time, story_name
         story_time = now
         story_name = datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
         print story_name
 
     def write_image(self):
+        global prior_image, story_name, motion_path
         cv2.imwrite(motion_path + story_name + '.jpg', prior_image)
 
     def encode_hd(self):
+        global story_name, motion_path
         main_video = motion_path + story_name + self.hd_ext
         
         source = '|'.join(self.videos)
@@ -158,6 +163,7 @@ class SDEncode(Thread):
         self.event_kill = threading.Event()
 
     def run(self):
+        global story_time, story_duration
         while not self.event_kill.is_set():
             now = math.ceil(time.time())
             if story_time and (story_time + story_duration) < now:
