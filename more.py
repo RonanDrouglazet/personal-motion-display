@@ -45,24 +45,25 @@ class MotionRecord(Thread):
     def run(self):
         while not self.event_kill.is_set():
             if self.detect_motion(camera):
-                print('Motion detected!')
-                now = math.ceil(time.time())
-                # As soon as we detect motion, split the recording to
-                # record the frames "after" motion
-                camera.split_recording(str(now) + '.h264')
-                # Write the 2 seconds "before" motion to disk as well
-                self.write_video(self.stream, now - 2)
-                # Wait until motion is no longer detected, 
-                while self.detect_motion(self.camera):
-                    camera.wait_recording(5)
-                print('Motion stopped!')
-                # then split recording back to the in-memory circular buffer
-                camera.split_recording(self.stream)
-                # append video to encode in the queue
-                self.queue.append(str((now - 2)) + '.h264')
-                self.queue.append(str(now) + '.h264')
-                # Warn everyone
-                self.event_motion.set()
+                with storyLock:
+                    print('Motion detected!')
+                    now = math.ceil(time.time())
+                    # As soon as we detect motion, split the recording to
+                    # record the frames "after" motion
+                    camera.split_recording(str(now) + '.h264')
+                    # Write the 2 seconds "before" motion to disk as well
+                    self.write_video(self.stream, now - 2)
+                    # Wait until motion is no longer detected, 
+                    while self.detect_motion(self.camera):
+                        camera.wait_recording(5)
+                    print('Motion stopped!')
+                    # then split recording back to the in-memory circular buffer
+                    camera.split_recording(self.stream)
+                    # append video to encode in the queue
+                    self.queue.append(str((now - 2)) + '.h264')
+                    self.queue.append(str(now) + '.h264')
+                    # Warn everyone
+                    self.event_motion.set()
 
 
     def detect_motion(self, camera):
