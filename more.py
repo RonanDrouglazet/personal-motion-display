@@ -150,7 +150,7 @@ class StoryMaker(Thread):
         source = '|'.join(self.videos)
         print source
         
-        subprocess.call(['avconv', '-i', 'concat:' + source, '-c', 'copy','-loglevel', 'quiet', '-y', main_video])
+        subprocess.call(['avconv', '-i', 'concat:' + source, '-c', 'copy','-loglevel', 'info', '-y', main_video])
 
 
 class SDEncode(Thread):
