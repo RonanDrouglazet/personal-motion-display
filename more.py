@@ -124,7 +124,7 @@ class StoryMaker(Thread):
             # if under story duration, it's a story resume
             if (now - story_time) < self.story_duration :
                 print('story resume')
-                self.encode_hd('resume')
+                self.encode_hd()
             # else we have a new story
             else:
                 print('story create')
@@ -133,7 +133,7 @@ class StoryMaker(Thread):
                 # if it's not the first story, clean previous queue
                 if len(self.videos) > 2:
                     self.clean_motion_queue()
-                self.encode_hd('create')
+                self.encode_hd()
 
     def init_story(self, now):
         global story_time, story_name
