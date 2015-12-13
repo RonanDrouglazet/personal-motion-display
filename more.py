@@ -33,13 +33,15 @@ class MotionRecord(Thread):
     def clean(self):
         print 'clean'
         print self.queue
-        keep = self.queue[-2::2]
+        keep = self.queue[-2::]
         print keep
         print self.queue
         for video in self.queue:
-            print('rm ' + video)
-            subprocess.call(['rm', video])
+            if video not in keep:
+                print('rm ' + video)
+                subprocess.call(['rm', video])
         self.queue = keep
+        return self.queue
 
     def run(self):
         while not self.event_kill.is_set():
@@ -132,7 +134,7 @@ class StoryMaker(Thread):
                 self.write_image()
                 # if it's not the first story, clean previous queue
                 if len(self.videos) > 2:
-                    self.clean_motion_queue()
+                    self.videos = self.clean_motion_queue()
                 self.encode_hd()
 
     def init_story(self, now):
