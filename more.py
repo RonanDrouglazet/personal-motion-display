@@ -179,6 +179,8 @@ class SDEncode(Thread):
                     subprocess.call(['avconv', '-i', video, 'temp.mp4'])
                     subprocess.call(['mv', '-f', 'temp.mp4', video])
                     print 'finish SD'
+                else:
+                    time.sleep(story_duration * 0.1)
             else:
                 print ('wait encode SD')
                 time.sleep(story_duration * 0.1)
