@@ -1,15 +1,8 @@
-import io
-import random
-import picamera
+import io, sys, random, picamera
 import picamera.array
 import numpy as np
-import cv2
-import math
-import time
-import datetime
-import subprocess
-import string
-import threading
+import cv2, math, time, datetime, subprocess
+import string, threading, httplib
 from threading import Thread, RLock
 
 prior_image = None
@@ -18,6 +11,7 @@ story_name = ''
 story_duration = 60 #s
 motion_path = '/home/pi/personal-motion-display/motion/'
 video_sd_queue = []
+pushbullet = httplib.HTTPSConnection('api.pushbullet.com')
 
 lockSDEncode = RLock()
 storyLock = RLock()
@@ -138,6 +132,19 @@ class StoryMaker(Thread):
                     self.videos = self.clean_motion_queue()
                 self.encode_hd()
                 video_sd_queue.append(motion_path + story_name + self.hd_ext)
+                # temp pushbullet
+                print('pushbullet ' + sys.argv[1])
+                pushbullet.request('POST', '/v2/pushes', {
+                    'type': 'link',
+                    'title': 'Motion detected !',
+                    'body': story_name,
+                    'url': sys.argv[2]
+                }, {'Access-Token': sys.argv[1]})
+                response = pushbullet.getresponse()
+                print response.status, response.reason
+                data = response.read()
+                print data
+                pushbullet.close()
 
     def init_story(self, now):
         global story_time, story_name
@@ -171,12 +178,13 @@ class SDEncode(Thread):
         global story_time, story_duration, motion_path, video_sd_queue
         while not self.event_kill.is_set():
             now = math.ceil(time.time())
+            # SDEncoder wait for no working time (no motion) to encode (long process)
             if story_time and (story_time + story_duration) < now:
                 if len(video_sd_queue) > 0:
                     print 'encode SD'
                     video = video_sd_queue.pop()
                     print video
-                    subprocess.call(['avconv', '-i', video, 'temp.mp4'])
+                    subprocess.call(['avconv', '-i', video, '-y', 'temp.mp4'])
                     subprocess.call(['mv', '-f', 'temp.mp4', video])
                     print 'finish SD'
                 else:
