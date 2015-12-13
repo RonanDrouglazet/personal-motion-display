@@ -180,6 +180,7 @@ class SDEncode(Thread):
                     subprocess.call(['mv', '-f', 'temp.mp4', video])
                     print 'finish SD'
                 else:
+                    print ('wait encode SD - nothing to encode')
                     time.sleep(story_duration * 0.1)
             else:
                 print ('wait encode SD')
