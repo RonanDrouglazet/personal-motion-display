@@ -107,7 +107,7 @@ class MotionRecord(Thread):
 # !TEMP pushbullet
 class Push(Thread):
 
-    def __init__(self, story_name):
+    def __init__(self, name):
         Thread.__init__(self)
         self.name = name
 
