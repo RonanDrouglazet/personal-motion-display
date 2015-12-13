@@ -139,7 +139,7 @@ class StoryMaker(Thread):
                     'title': 'Motion detected !',
                     'body': story_name,
                     'url': sys.argv[2],
-                    'client_iden': sys.argv[3]
+                    'device_iden': sys.argv[3]
                 }), {'Access-Token': sys.argv[1], 'Content-Type': 'application/json'})
                 response = pushbullet.getresponse()
                 print response.status, response.reason
