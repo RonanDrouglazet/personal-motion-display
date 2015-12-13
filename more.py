@@ -163,13 +163,17 @@ class SDEncode(Thread):
         self.event_kill = threading.Event()
 
     def run(self):
-        global story_time, story_duration
+        global story_time, story_duration, motion_path
         while not self.event_kill.is_set():
             now = math.ceil(time.time())
             if story_time and (story_time + story_duration) < now:
                 print ('encode SD')
+                videos = subprocess.call(['ls', '-l', motion_path + '*.mp4'])
+                print videos
             else:
                 print ('wait encode SD')
+                videos = subprocess.call(['ls', '-l', motion_path + '*.mp4'])
+                print videos
                 time.sleep(story_duration * 0.1)
         
         #with lockSDEncode:
@@ -189,6 +193,7 @@ with picamera.PiCamera() as camera:
         # init motion detector thread
         motion = MotionRecord(camera, stream)
         motion.start()
+        # create a sd encoder worker
         sd_encoder = SDEncode(camera)
         sd_encoder.start()
         while not motion.event_kill.is_set():
