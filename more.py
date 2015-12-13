@@ -17,6 +17,7 @@ story_time = 0
 story_name = ''
 story_duration = 60 #s
 motion_path = '/home/pi/personal-motion-display/motion/'
+video_sd_queue = []
 
 lockSDEncode = RLock()
 storyLock = RLock()
@@ -117,7 +118,7 @@ class StoryMaker(Thread):
         self.clean_motion_queue = clean_motion_queue
 
     def run(self):
-        global story_time, story_duration
+        global story_time, story_duration, video_sd_queue, story_name, motion_path
         with storyLock:
             now = math.ceil(time.time())
             # if under story duration, it's a story resume
@@ -127,12 +128,15 @@ class StoryMaker(Thread):
             # else we have a new story
             else:
                 print('story create')
+                # init time and name 
                 self.init_story(now)
+                # write cover image
                 self.write_image()
                 # if it's not the first story, clean previous queue
                 if len(self.videos) > 2:
                     self.videos = self.clean_motion_queue()
                 self.encode_hd()
+                video_sd_queue.append(motion_path + story_name + self.hd_ext)
 
     def init_story(self, now):
         global story_time, story_name
@@ -163,17 +167,19 @@ class SDEncode(Thread):
         self.event_kill = threading.Event()
 
     def run(self):
-        global story_time, story_duration, motion_path
+        global story_time, story_duration, motion_path, video_sd_queue
         while not self.event_kill.is_set():
             now = math.ceil(time.time())
             if story_time and (story_time + story_duration) < now:
-                print ('encode SD')
-                videos = subprocess.call(['ls', '-l', motion_path + '*.mp4'])
-                print videos
+                if len(video_sd_queue) > 0:
+                    print 'encode SD'
+                    video = video_sd_queue.pop()
+                    print video
+                    subprocess.call(['avconv', '-i', video, 'temp.mp4'])
+                    subprocess.call(['mv', '-f', 'temp.mp4', video])
+                    print 'finish SD'
             else:
                 print ('wait encode SD')
-                videos = subprocess.call(['ls', '-l', motion_path])
-                print videos
                 time.sleep(story_duration * 0.1)
         
         #with lockSDEncode:
