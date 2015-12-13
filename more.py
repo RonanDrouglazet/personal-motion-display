@@ -104,6 +104,28 @@ class MotionRecord(Thread):
         stream.seek(0)
         stream.truncate()
 
+# !TEMP pushbullet
+class Push(Thread):
+
+    def __init__(self, story_name):
+        Thread.__init__(self)
+        self.name = name
+
+    def run(self):
+        print('pushbullet ' + sys.argv[1])
+        pushbullet.request('POST', '/v2/pushes', json.dumps({
+            'type': 'link',
+            'title': 'Motion detected !',
+            'body': self.name,
+            'url': sys.argv[2],
+            'device_iden': sys.argv[3]
+        }), {'Access-Token': sys.argv[1], 'Content-Type': 'application/json'})
+        response = pushbullet.getresponse()
+        print response.status, response.reason
+        data = response.read()
+        print data
+        pushbullet.close()
+
 class StoryMaker(Thread):
 
     def __init__(self, videos, clean_motion_queue):
@@ -125,6 +147,8 @@ class StoryMaker(Thread):
                 print('story create')
                 # init time and name 
                 self.init_story(now)
+                # call pushbullet for notif
+                Push(story_name).start()
                 # write cover image
                 self.write_image()
                 # if it's not the first story, clean previous queue
@@ -132,20 +156,7 @@ class StoryMaker(Thread):
                     self.videos = self.clean_motion_queue()
                 self.encode_hd()
                 video_sd_queue.append(motion_path + story_name + self.hd_ext)
-                # temp pushbullet
-                print('pushbullet ' + sys.argv[1])
-                pushbullet.request('POST', '/v2/pushes', json.dumps({
-                    'type': 'link',
-                    'title': 'Motion detected !',
-                    'body': story_name,
-                    'url': sys.argv[2],
-                    'device_iden': sys.argv[3]
-                }), {'Access-Token': sys.argv[1], 'Content-Type': 'application/json'})
-                response = pushbullet.getresponse()
-                print response.status, response.reason
-                data = response.read()
-                print data
-                pushbullet.close()
+
 
     def init_story(self, now):
         global story_time, story_name
@@ -189,14 +200,9 @@ class SDEncode(Thread):
                     subprocess.call(['mv', '-f', 'temp.mp4', video])
                     print 'finish SD'
                 else:
-                    print ('wait encode SD - nothing to encode')
                     time.sleep(story_duration * 0.1)
             else:
-                print ('wait encode SD')
                 time.sleep(story_duration * 0.1)
-        
-        #with lockSDEncode:
-        #    subprocess.call(['avconv', '-i', motion_path + self.name + '-HD.mp4', '-b', '500k', motion_path + self.name + '-SD.mp4'])
 
 with picamera.PiCamera() as camera:
     # init camera
