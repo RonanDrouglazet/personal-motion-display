@@ -113,7 +113,7 @@ class StoryMaker(Thread):
     def __init__(self, videos, clean_motion_queue):
         Thread.__init__(self)
         self.videos = videos
-        self.story_duration = 600 #s
+        self.story_duration = 60 #s
         self.hd_ext = '-HD.mp4'
         self.clean_motion_queue = clean_motion_queue
 
