@@ -51,7 +51,7 @@ class MotionRecord(Thread):
                     Push(str(now)).start()
                     # Wait until motion is no longer detected, 
                     while self.detect_motion(self.camera):
-                        camera.wait_recording(5)
+                        camera.wait_recording(2)
                     print('Motion stopped!')
                     # then split recording back to the in-memory circular buffer
                     camera.split_recording(self.stream)
