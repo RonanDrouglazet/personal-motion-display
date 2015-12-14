@@ -8,7 +8,7 @@ from threading import Thread, RLock
 prior_image = None
 story_time = 0
 story_name = ''
-story_duration = 60 #s
+story_duration = 60 * 10 #s
 motion_path = '/home/pi/personal-motion-display/motion/'
 video_sd_queue = []
 pushbullet = httplib.HTTPSConnection('api.pushbullet.com')
@@ -114,7 +114,6 @@ class Push(Thread):
         self.name = name
 
     def run(self):
-        print('pushbullet ' + sys.argv[1])
         pushbullet.request('POST', '/v2/pushes', json.dumps({
             'type': 'link',
             'title': 'Motion detected !',
@@ -122,10 +121,6 @@ class Push(Thread):
             'url': sys.argv[2],
             'device_iden': sys.argv[3]
         }), {'Access-Token': sys.argv[1], 'Content-Type': 'application/json'})
-        response = pushbullet.getresponse()
-        print response.status, response.reason
-        data = response.read()
-        print data
         pushbullet.close()
 
 class StoryMaker(Thread):
