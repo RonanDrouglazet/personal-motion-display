@@ -84,11 +84,11 @@ $(document).ready(function() {
 
     // set motion record button status
     var status = function(started) {
-        $(started ? '.green' : '.red').removeClass(started ? 'green' : 'red').addClass(started ? 'red' : 'green');
-        $('.labeled.button').find('.button').html(started ?
+        $('.startstop').removeClass(started ? 'green' : 'red').addClass(started ? 'red' : 'green');
+        $('.startstop').html(started ?
             '<i class="stop icon"></i> Stop' :
-            '<i class="play icon"></i> Start');
-        $('.labeled.button').find('.label').html(started ? 'started' : 'stopped');
+            '<i class="play icon"></i> Start'
+        );
     }
 
     // retrieve list of motion
@@ -105,12 +105,21 @@ $(document).ready(function() {
     })
 
     // set motion record status (start / stop)
-    $('.labeled.button').find('.button').click(function() {
+    $('button.startstop').click(function() {
         $(this).find('i').removeClass('play stop').addClass('spinner loading')
         $.get('/api/' + (running ? 'stop' : 'start'), function(err) {
             console.log(err)
             running = !running
             status(running)
+        })
+    })
+
+    // set motion record status (start / stop)
+    $('button.night').click(function() {
+        $(this).find('i').removeClass('photo').addClass('spinner loading')
+        $.get('/api/snapshot/night', function(err) {
+            image(Date.now(), 'dark.jpg')
+            $('.dimmer').dimmer('show')
         })
     })
 })

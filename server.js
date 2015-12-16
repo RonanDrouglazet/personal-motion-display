@@ -42,6 +42,14 @@ app.get('/api/keep/:name', function(req, res) {
     })
 })
 
+app.get('/api/snapshot/:type', function(req, res) {
+    cp.exec('python ' + req.params.type + '.py', function(err) {
+        if (!err) {
+            res.send()
+        }
+    })
+})
+
 app.use('/', express.static(__dirname + '/'));
 app.use('/motion', express.static(__dirname + '/motion/'));
 app.use('/keep', express.static(__dirname + '/keep/'));
