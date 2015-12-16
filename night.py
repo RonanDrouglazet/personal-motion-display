@@ -18,4 +18,4 @@ with picamera.PiCamera() as camera:
     # Finally, capture an image with a 6s exposure. Due
     # to mode switching on the still port, this will take
     # longer than 6 seconds
-    camera.capture('motion/dark.jpg')
+    camera.capture('/home/pi/personal-motion-display/motion/dark.jpg')
