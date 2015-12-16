@@ -48,6 +48,12 @@ app.get('/api/snapshot/:type', function(req, res) {
     })
 })
 
+app.get('/api/infos/:name', function(req, res) {
+    cp.exec('avprobe ' + __dirname + '/' + req.params.name, function(err, stdo, stde) {
+        res.send(stdo)
+    })
+})
+
 app.use('/', express.static(__dirname + '/'));
 app.use('/motion', express.static(__dirname + '/motion/'));
 app.use('/keep', express.static(__dirname + '/keep/'));

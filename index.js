@@ -6,9 +6,12 @@ $(document).ready(function() {
     // Dimmer
     var image = function(id, name) {
         card.find('.image').html('<video width="290" src="motion/' + name.replace('.jpg', '-HD.mp4') + '" poster="motion/' + name + '" controls preload="none"/>');
-        card.find('.header').html(name.slice(0, 10).replace(/-/ig, '/'));
 
-        card.find('.date').html(name.split('.').shift().slice(11).replace('-', ':').replace('-', '.'))
+        $.get('/api/infos/' + name, function(infos) {
+            console.log(infos)
+            card.find('.header').html(name.slice(0, 10).replace(/-/ig, '/'));
+            card.find('.date').html(name.split('.').shift().slice(11).replace('-', ':').replace('-', '.'))
+        })
 
         card.find('.trash').off()
         card.find('.trash').click(function() {
@@ -130,7 +133,7 @@ $(document).ready(function() {
         $(this).find('i').removeClass('photo').addClass('spinner loading')
         $.get('/api/snapshot/day', function(err) {
             if (!err) {
-                image(Date.now(), 'day.jpg')
+                image(Date.now(), 'day.jpg?' + Date.now())
                 $('.dimmer').dimmer('show')
             }
             $('button.day').find('i').removeClass('spinner loading').addClass('photo')
