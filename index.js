@@ -114,13 +114,26 @@ $(document).ready(function() {
         })
     })
 
-    // set motion record status (start / stop)
+    // set capture button
     $('button.night').click(function() {
         $(this).find('i').removeClass('photo').addClass('spinner loading')
         $.get('/api/snapshot/night', function(err) {
-            console.log(err)
-            image(Date.now(), 'dark.jpg')
-            $('.dimmer').dimmer('show')
+            if (!err) {
+                image(Date.now(), 'dark.jpg')
+                $('.dimmer').dimmer('show')
+            }
+            $('button.night').find('i').removeClass('spinner loading').addClass('photo')
+        })
+    })
+
+    $('button.day').click(function() {
+        $(this).find('i').removeClass('photo').addClass('spinner loading')
+        $.get('/api/snapshot/day', function(err) {
+            if (!err) {
+                image(Date.now(), 'day.jpg')
+                $('.dimmer').dimmer('show')
+            }
+            $('button.day').find('i').removeClass('spinner loading').addClass('photo')
         })
     })
 })
