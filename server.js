@@ -50,7 +50,7 @@ app.get('/api/snapshot/:type', function(req, res) {
 
 app.get('/api/infos/:name', function(req, res) {
     cp.exec('avprobe ' + __dirname + '/motion/' + req.params.name, function(err, stdo, stde) {
-        res.send(stdo)
+        res.send(stde)
     })
 })
 
