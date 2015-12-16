@@ -9,6 +9,15 @@
     <script src="bower_components/jquery/dist/jquery.min.js"></script>
     <script src="bower_components/semantic/dist/semantic.min.js"></script>
     <script src="index.js"></script>
+    <style type="text/css">
+      body {
+        background: black
+      }
+      .ui.card {
+        left: 50%;
+        margin-left: -145px;
+      }
+    </style>
 </head>
 <body>
     <div class="ui container">
@@ -20,7 +29,13 @@
           <i class="play icon"></i> Start
         </div>
       </div>
-      <div class="ui cards">
+    </div>
+
+    <div class="ui page dimmer">
+      <div class="content">
+        <div class="center">
+
+          <!-- CARD -->
           <div class="ui card">
             <div class="image"></div>
             <div class="content">
@@ -30,16 +45,16 @@
               </div>
             </div>
             <div class="extra content">
-              <div class="ui toggle checkbox">
-                <input type="checkbox" name="public" checked="checked">
-                <label>HD</label>
-              </div>
               <i class="trash icon"></i>
               <i class="save icon"></i>
             </div>
           </div>
+          <!-- CARD END -->
+
+        </div>
       </div>
     </div>
+
     <div class="ui basic modal">
       <i class="close icon"></i>
       <div class="header">
