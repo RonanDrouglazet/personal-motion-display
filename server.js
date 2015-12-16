@@ -44,9 +44,7 @@ app.get('/api/keep/:name', function(req, res) {
 
 app.get('/api/snapshot/:type', function(req, res) {
     cp.exec('python ' + req.params.type + '.py', function(err) {
-        if (!err) {
-            res.send()
-        }
+        res.send(err)
     })
 })
 

@@ -118,6 +118,7 @@ $(document).ready(function() {
     $('button.night').click(function() {
         $(this).find('i').removeClass('photo').addClass('spinner loading')
         $.get('/api/snapshot/night', function(err) {
+            console.log(err)
             image(Date.now(), 'dark.jpg')
             $('.dimmer').dimmer('show')
         })
