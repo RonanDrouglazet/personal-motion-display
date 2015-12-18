@@ -12,12 +12,13 @@ story_duration = 60 * 10 #s
 motion_path = '/home/pi/personal-motion-display/motion/'
 video_sd_queue = []
 pushbullet = httplib.HTTPSConnection('api.pushbullet.com')
+display = httplib.HTTPConnection(sys.argv[2])
 
 lockSDEncode = RLock()
 storyLock = RLock()
 
 class MotionRecord(Thread):
-    
+
     def __init__(self, camera, stream):
         Thread.__init__(self)
         self.event_kill = threading.Event()
@@ -49,7 +50,7 @@ class MotionRecord(Thread):
                     self.write_video(self.stream, now - 2)
                     # call pushbullet for notif
                     Push(str(now)).start()
-                    # Wait until motion is no longer detected, 
+                    # Wait until motion is no longer detected,
                     while self.detect_motion(self.camera):
                         camera.wait_recording(2)
                     print('Motion stopped!')
@@ -83,7 +84,7 @@ class MotionRecord(Thread):
         # NOTE: the two images must have the same dimension
         err = np.sum((imageA.astype("float") - imageB.astype("float")) ** 2)
         err /= float(imageA.shape[0] * imageA.shape[1])
-        
+
         # return the MSE, the lower the error, the more "similar"
         # the two images are
         return err
@@ -142,7 +143,7 @@ class StoryMaker(Thread):
             # else we have a new story
             else:
                 print('story create')
-                # init time and name 
+                # init time and name
                 self.init_story(now)
                 # write cover image
                 self.write_image()
@@ -150,7 +151,7 @@ class StoryMaker(Thread):
                 if len(self.videos) > 2:
                     self.videos = self.clean_motion_queue()
                 self.encode_hd()
-                video_sd_queue.append(motion_path + story_name + self.hd_ext)
+                video_sd_queue.append(story_name + self.hd_ext)
 
 
     def init_story(self, now):
@@ -166,10 +167,10 @@ class StoryMaker(Thread):
     def encode_hd(self):
         global story_name, motion_path
         main_video = motion_path + story_name + self.hd_ext
-        
+
         source = '|'.join(self.videos)
         print source
-        
+
         subprocess.call(['avconv', '-i', 'concat:' + source, '-c', 'copy','-loglevel', 'error', '-y', main_video])
         print('encode finish')
 
@@ -191,8 +192,10 @@ class SDEncode(Thread):
                     print 'encode SD'
                     video = video_sd_queue.pop()
                     print video
-                    subprocess.call(['avconv', '-i', video, '-y', 'temp.mp4'])
-                    subprocess.call(['mv', '-f', 'temp.mp4', video])
+                    #subprocess.call(['avconv', '-i', video, '-y', 'temp.mp4'])
+                    #subprocess.call(['mv', '-f', 'temp.mp4', video])
+                    display.request('GET', '/api/convert/' + video)
+                    display.close()
                     print 'finish SD'
                 else:
                     time.sleep(story_duration * 0.1)
@@ -204,7 +207,7 @@ with picamera.PiCamera() as camera:
     camera.resolution = (1280, 720)
     camera.hflip = True
     camera.vflip = True
-    # circular 2 second stream 
+    # circular 2 second stream
     stream = picamera.PiCameraCircularIO(camera, seconds=2)
     camera.start_recording(stream, format='h264')
     # wait a little, if not, falsy motion are detected
@@ -221,9 +224,9 @@ with picamera.PiCamera() as camera:
             motion.event_motion.wait()
             # we have a motion, resume or creat a story
             StoryMaker(motion.queue, motion.clean).start()
-            # story work is finish, reset motion event and listen again 
+            # story work is finish, reset motion event and listen again
             motion.event_motion.clear()
 
     finally:
         camera.stop_recording()
-        
+
