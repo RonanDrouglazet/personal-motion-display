@@ -108,20 +108,20 @@ $(document).ready(function() {
     }
 
     // retrieve list of motion
-    $.get('/api/list', function(data) {
+    $.get('/api/list?' + Date.now(), function(data) {
         if (!data.error && data.files) {
             create(data.files)
         }
     })
 
     // get status of motion record
-    $.get('/api/status', function(started) {
+    $.get('/api/status?' + Date.now(), function(started) {
         running = started
         status(started)
     })
 
     // get status of motion record
-    $.get('/api/encoding', function(encode) {
+    $.get('/api/encoding?' + Date.now(), function(encode) {
         console.log(encode)
         if (encode.now) {
             $('.message p').html(encode.now)
@@ -142,7 +142,7 @@ $(document).ready(function() {
     // set capture button
     $('button.night').click(function() {
         $(this).find('i').removeClass('photo').addClass('spinner loading')
-        $.get('/api/snapshot/night', function(err) {
+        $.get('/api/snapshot/night?' + Date.now(), function(err) {
             if (!err) {
                 image(Date.now(), 'dark.jpg')
                 $('.dimmer').dimmer('show')
@@ -153,7 +153,7 @@ $(document).ready(function() {
 
     $('button.day').click(function() {
         $(this).find('i').removeClass('photo').addClass('spinner loading')
-        $.get('/api/snapshot/day', function(err) {
+        $.get('/api/snapshot/day?' + Date.now(), function(err) {
             if (!err) {
                 image(Date.now(), 'day.jpg?' + Date.now())
                 $('.dimmer').dimmer('show')

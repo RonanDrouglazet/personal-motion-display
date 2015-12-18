@@ -11,8 +11,9 @@ var convert = {
 var convert_process = function() {
     if (!convert.now && convert.list.length) {
         var dest = __dirname + '/motion/' + convert.list.pop()
+        var now = Date.now()
         convert.now = dest.split('/').pop() + ' - ' + new Date().toLocaleTimeString()
-        cp.exec('avconv -i ' + dest + ' -y temp.mp4 && mv -f temp.mp4 ' + dest, function(err) {
+        cp.exec('avconv -i ' + dest + ' -y ' + now + '.mp4 && mv -f ' + now + '.mp4 ' + dest, function(err) {
             convert.now = null
             convert_process()
         })
