@@ -7,10 +7,10 @@ $(document).ready(function() {
     var image = function(id, name) {
         card.find('.image').html('<video width="290" src="motion/' + name.replace('.jpg', '-HD.mp4') + '" poster="motion/' + name + '" controls preload="none"/>');
 
-        $.get('/api/infos/' + name, function(infos) {
-            console.log(infos)
-            card.find('.header').html(name.slice(0, 10).replace(/-/ig, '/'));
-            card.find('.date').html(name.split('.').shift().slice(11).replace('-', ':').replace('-', '.'))
+        $.get('/api/infos/' + name.replace('.jpg', '-HD.mp4'), function(infos) {
+            var info = infos.match(/Duration\: 00\:(.+)\.\d+, s.+(bitrate.+\/s)\n/)
+            card.find('.header').html('Duration: ' + info[1] + 's')
+            card.find('.date').html(info[2])
         })
 
         card.find('.trash').off()
@@ -40,7 +40,20 @@ $(document).ready(function() {
                 onApprove : function() {
                   $.get('/api/keep/' + name.replace('.jpg', ''), function(err) {})
                 }
-              }).modal('show')
+            }).modal('show')
+        })
+
+        card.find('.plug').off()
+        card.find('.plug').click(function() {
+            $('.dimmer').dimmer('hide')
+            $('.ui.basic.modal').modal({
+                onDeny    : function(){
+                  return true;
+                },
+                onApprove : function() {
+                  $.get('/api/convert/' + name.replace('.jpg', '-HD.mp4'), function(err) {})
+                }
+            }).modal('show')
         })
     }
 
@@ -105,6 +118,15 @@ $(document).ready(function() {
     $.get('/api/status', function(started) {
         running = started
         status(started)
+    })
+
+    // get status of motion record
+    $.get('/api/encoding', function(encode) {
+        console.log(encode)
+        if (encode.now) {
+            $('.message p').html(encode.now)
+            $('.message').show()
+        }
     })
 
     // set motion record status (start / stop)

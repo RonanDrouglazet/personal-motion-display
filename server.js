@@ -3,6 +3,22 @@ fs = require('fs'),
 http = require('http'),
 cp = require('child_process');
 
+var convert = {
+    now: null,
+    list: []
+}
+
+var convert_process = function() {
+    if (!convert.now && convert.list.length) {
+        var dest = __dirname + '/motion/' + convert.list.pop()
+        convert.now = dest.split('/').pop() + ' - ' + new Date().toLocaleTimeString()
+        cp.exec('avconv -i ' + dest + ' -y temp.mp4 && mv -f temp.mp4 ' + dest, function(err) {
+            convert.now = null
+            convert_process()
+        })
+    }
+}
+
 var app = express();
 
 app.get('/api/list', function(req, res) {
@@ -15,6 +31,10 @@ app.get('/api/status', function(req, res) {
     cp.exec('status motionrecord', function(err, stdo, stde) {
         res.send(stdo.indexOf('stop') === -1)
     })
+})
+
+app.get('/api/encoding', function(req, res) {
+    res.send(convert)
 })
 
 app.get('/api/start', function(req, res) {
@@ -52,6 +72,11 @@ app.get('/api/infos/:name', function(req, res) {
     cp.exec('avprobe ' + __dirname + '/motion/' + req.params.name, function(err, stdo, stde) {
         res.send(stde)
     })
+})
+
+app.get('/api/convert/:name', function(req, res) {
+    convert.list.push(req.params.name)
+    convert_process()
 })
 
 app.use('/', express.static(__dirname + '/'));
