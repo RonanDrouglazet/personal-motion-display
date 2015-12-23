@@ -33,7 +33,7 @@ class MotionRecord(Thread):
         for video in self.queue:
             if video not in keep:
                 print('rm ' + video)
-                subprocess.call(['rm', video])
+                subprocess.call(['sudo','rm', video])
         self.queue = keep
         return self.queue
 
