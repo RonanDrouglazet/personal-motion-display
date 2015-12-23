@@ -3,11 +3,19 @@ $(document).ready(function() {
     var title = []
     var running;
 
+    var get = function(url, cbk) {
+        $.get(url + '?' + Date.now(), cbk)
+    }
+
     // Dimmer
     var image = function(id, name) {
-        card.find('.image').html('<video width="290" src="motion/' + name.replace('.jpg', '-HD.mp4') + '" poster="motion/' + name + '" controls preload="none"/>');
+        var jpg = name
+        var video = name.replace('.jpg', '-HD.mp4')
+        var name = name.replace('.jpg', '')
 
-        $.get('/api/infos/' + name.replace('.jpg', '-HD.mp4'), function(infos) {
+        card.find('.image').html('<video width="290" src="motion/' + video + '" poster="motion/' + jpg + '" controls preload="none"/>');
+
+        get('/api/infos/' + video, function(infos) {
             var info = infos.match(/Duration\: 00\:(.+)\.\d+, s.+(bitrate.+\/s)\n/)
             card.find('.header').html('Duration: ' + info[1] + 's')
             card.find('.date').html(info[2])
@@ -21,7 +29,7 @@ $(document).ready(function() {
                   return true;
                 },
                 onApprove : function() {
-                  $.get('/api/remove/' + name, function(err) {
+                  get('/api/remove/' + name, function(err) {
                     if (!err) {
                         $('.' + id).remove();
                     }
@@ -38,7 +46,7 @@ $(document).ready(function() {
                   return true;
                 },
                 onApprove : function() {
-                  $.get('/api/keep/' + name.replace('.jpg', ''), function(err) {})
+                  get('/api/keep/' + name, function(err) {})
                 }
             }).modal('show')
         })
@@ -51,7 +59,7 @@ $(document).ready(function() {
                   return true;
                 },
                 onApprove : function() {
-                  $.get('/api/convert/' + name.replace('.jpg', '-HD.mp4'), function(err) {})
+                  get('/api/convert/' + video, function(err) {})
                 }
             }).modal('show')
         })
@@ -108,20 +116,20 @@ $(document).ready(function() {
     }
 
     // retrieve list of motion
-    $.get('/api/list?' + Date.now(), function(data) {
+    get('/api/list', function(data) {
         if (!data.error && data.files) {
             create(data.files)
         }
     })
 
     // get status of motion record
-    $.get('/api/status?' + Date.now(), function(started) {
+    get('/api/status', function(started) {
         running = started
         status(started)
     })
 
     // get status of motion record
-    $.get('/api/encoding?' + Date.now(), function(encode) {
+    get('/api/encoding', function(encode) {
         console.log(encode)
         if (encode.now) {
             $('.message p').html(encode.now)
@@ -132,7 +140,7 @@ $(document).ready(function() {
     // set motion record status (start / stop)
     $('button.startstop').click(function() {
         $(this).find('i').removeClass('play stop').addClass('spinner loading')
-        $.get('/api/' + (running ? 'stop' : 'start'), function(err) {
+        get('/api/' + (running ? 'stop' : 'start'), function(err) {
             console.log(err)
             running = !running
             status(running)
@@ -142,9 +150,9 @@ $(document).ready(function() {
     // set capture button
     $('button.night').click(function() {
         $(this).find('i').removeClass('photo').addClass('spinner loading')
-        $.get('/api/snapshot/night?' + Date.now(), function(err) {
+        get('/api/snapshot/night', function(err) {
             if (!err) {
-                image(Date.now(), 'dark.jpg')
+                image(Date.now(), 'dark.jpg?' + Date.now())
                 $('.dimmer').dimmer('show')
             }
             $('button.night').find('i').removeClass('spinner loading').addClass('photo')
@@ -153,7 +161,7 @@ $(document).ready(function() {
 
     $('button.day').click(function() {
         $(this).find('i').removeClass('photo').addClass('spinner loading')
-        $.get('/api/snapshot/day?' + Date.now(), function(err) {
+        get('/api/snapshot/day', function(err) {
             if (!err) {
                 image(Date.now(), 'day.jpg?' + Date.now())
                 $('.dimmer').dimmer('show')

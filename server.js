@@ -51,7 +51,7 @@ app.get('/api/stop', function(req, res) {
 })
 
 app.get('/api/remove/:name', function(req, res) {
-    cp.exec('rm ' + __dirname + '/motion/' + req.params.name.replace('.jpg', '*'), function(err) {
+    cp.exec('rm ' + __dirname + '/motion/' + req.params.name + '*', function(err) {
         res.send(err);
     })
 })
