@@ -42,6 +42,11 @@ if (process.env.RECORDER) {
     })
 }
 
+app.use('/', (req, res, next) => {
+    res.set('Access-Control-Allow-Origin', '*')
+    next()
+})
+
 app.get('/api/list', function(req, res) {
     fs.readdir(__dirname + '/motion', function(err, data) {
         res.send({files: data, error: err});
