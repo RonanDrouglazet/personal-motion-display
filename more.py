@@ -194,7 +194,7 @@ class SDEncode(Thread):
                     print video
                     #subprocess.call(['avconv', '-i', video, '-y', 'temp.mp4'])
                     #subprocess.call(['mv', '-f', 'temp.mp4', video])
-                    display.request('GET', '/api/convert/' + video)
+                    display.request('GET', sys.argv[2] + '/api/convert/' + video)
                     display.close()
                     print 'finish SD'
                 else:
