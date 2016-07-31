@@ -118,8 +118,8 @@ if (process.env.RECORDER || process.env.ENCODER) {
     console.log('/motion redirect')
     app.use('/motion', (req, res, next) => {
         if (!res.headersSent) {
-            console.log('/motion redirect on', (process.env.RECORDER || process.env.ENCODER) + req.path)
-            res.redirect((process.env.RECORDER || process.env.ENCODER) + req.path)
+            console.log('/motion redirect on', (process.env.RECORDER || process.env.ENCODER) + '/motion' + req.path)
+            res.redirect((process.env.RECORDER || process.env.ENCODER) + '/motion/' + req.path)
         } else {
             next()
         }
