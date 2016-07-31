@@ -107,6 +107,7 @@ app.get('/api/convert/:name', function(req, res) {
     } else {
         convert.list.push(req.params.name)
         convert_process()
+        res.send()
     }
 })
 
