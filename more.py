@@ -8,7 +8,7 @@ from threading import Thread, RLock
 prior_image = None
 story_time = 0
 story_name = ''
-story_duration = 60 * 10 #s
+story_duration = 60 * 1 #s
 motion_path = '/home/pi/personal-motion-display/motion/'
 video_sd_queue = []
 pushbullet = httplib.HTTPSConnection('api.pushbullet.com')
@@ -229,4 +229,3 @@ with picamera.PiCamera() as camera:
 
     finally:
         camera.stop_recording()
-
