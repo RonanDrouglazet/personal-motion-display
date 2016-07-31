@@ -33,7 +33,7 @@ try {fs.mkdirSync(__dirname + '/motion')} catch(e) {}
 if (process.env.RECORDER) {
     console.log('RECORDER detected:', process.env.RECORDER)
     app.use('/', (req, res, next) => {
-        if (!req.path.match(/convert|encoding|motion)/)) {
+        if (!req.path.match(/convert|encoding|motion/)) {
             console.log('redirect to RECORDER:', process.env.RECORDER + req.path)
             res.redirect(process.env.RECORDER + req.path)
         } else {
