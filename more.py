@@ -17,6 +17,8 @@ display = httplib.HTTPConnection(sys.argv[2])
 lockSDEncode = RLock()
 storyLock = RLock()
 
+print(sys.argv[2])
+
 class MotionRecord(Thread):
 
     def __init__(self, camera, stream):
