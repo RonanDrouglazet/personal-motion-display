@@ -75,6 +75,7 @@ app.get('/api/start', function(req, res) {
 app.get('/api/stop', function(req, res) {
     cp.exec('stop motionrecord', function(err) {
         res.send(err);
+        cp.exec('rm /*.h264', function(err) {})
     })
 })
 
