@@ -20,6 +20,9 @@ var convert_process = function() {
         console.log('process', input, 'to', dest)
         cp.exec('avconv -i ' + input + ' -y ' + now + ' && mv -f ' + now + ' ' + dest, function(err) {
             convert.now = null
+            if (process.env.RECORDER) {
+                http.get(process.env.RECORDER + '/api/remove/' + name)
+            }
             convert_process()
         })
     }
@@ -33,7 +36,7 @@ try {fs.mkdirSync(__dirname + '/motion')} catch(e) {}
 if (process.env.RECORDER) {
     console.log('RECORDER detected:', process.env.RECORDER)
     app.use('/', (req, res, next) => {
-        if (req.path.match(/api\/(list|status|start|stop|remove|keep|snapshot|infos)/)) {
+        if (req.path.match(/api\/(list|status|start|stop|remove|keep|snapshot)/)) {
             console.log('redirect to RECORDER:', process.env.RECORDER + req.path)
             res.redirect(process.env.RECORDER + req.path)
         } else {
